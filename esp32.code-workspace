@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "esp32-blink"
+		},
+		{
+			"path": "esp32-mqtt-test"
+		},
+		{
+			"path": "esp32-wifiscan"
+		},
+		{
+			"path": "esp32-mqtt-tls-test"
+		}
+	],
+	"settings": {}
+}
