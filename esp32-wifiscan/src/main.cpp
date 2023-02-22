@@ -20,7 +20,7 @@ void setup()
 
 void loop()
 {
-    Serial.println("scan start");
+    Serial.println("Scan start");
 
     // WiFi.scanNetworks will return the number of networks found
     int n = WiFi.scanNetworks();
