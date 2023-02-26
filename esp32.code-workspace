@@ -11,9 +11,6 @@
 		},
 		{
 			"path": "esp32-mqtt-tls-test"
-		},
-		{
-			"path": "esp32-mqtt-tls-test2"
 		}
 	],
 	"settings": {}

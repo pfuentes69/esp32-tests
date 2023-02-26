@@ -1,1 +1,0 @@
-# wemos-awsiot-test
