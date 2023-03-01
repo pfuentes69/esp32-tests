@@ -1,21 +1,8 @@
 #include <Arduino.h>
-
-// The following define sets the compiler for ESP8266 or for ESP32
-// But it seems that this is not really required
-//#define ESP32
-//#define ESP8266
-
-#ifdef ESP32
-#include <SPIFFS.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
-#endif
-
-#ifdef ESP8266
-#include <ESP8266WiFi.h>
-#include <PubSubClient.h>
-#endif
+#include <SPIFFS.h>
 
 //
 // GLOBAL VARIABLES
@@ -28,17 +15,9 @@ String devID;
 String devPubTopic;
 String devSubTopic;
 
-char strDeviceCert[2048];
-char strDeviceKey[2048];
-char strCACert[2048];
-
-// bool EC_crypto = false;
-
-#ifdef ESP8266
-X509List* x509CACert;
-X509List* x509DeviceCert;
-PrivateKey* deviceKey;
-#endif
+char deviceCert[2048];
+char deviceKey[2048];
+char caCert[2048];
 
 // WiFiClient espClient;
 WiFiClientSecure WIFIclient;
@@ -113,13 +92,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
 void setMQTT()
 {
 // Load CA cert into trust store
-#ifdef ESP8266  
-  WIFIclient.setTrustAnchors(x509CACert);
-#endif
-
-#ifdef ESP32
-  WIFIclient.setCACert(strCACert);
-#endif
+  //  WIFIclient.setTrustAnchors(&caCert); // ESP8266 (BearSSL)
+  WIFIclient.setCACert(caCert); //CA_CERT); // ESP32
 
 //  Enable self-signed cert support
   //  WIFIclient.allowSelfSignedCerts();
@@ -128,18 +102,12 @@ void setMQTT()
   //  WIFIclient.setInsecure();
 
 // Set Client certificate
-#ifdef ESP32
-  WIFIclient.setCertificate(strDeviceCert);
-  WIFIclient.setPrivateKey(strDeviceKey);
-#endif
+  WIFIclient.setCertificate(deviceCert); //DEVICE_CERT); // ESP32
+  WIFIclient.setPrivateKey(deviceKey); //DEVICE_PRIVATE); //ESP32
 
-#ifdef ESP8266
-  if (deviceKey->isEC()) {
-    WIFIclient.setClientECCert(x509DeviceCert, deviceKey, BR_KEYTYPE_KEYX | BR_KEYTYPE_SIGN, BR_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
-  } else {
-    WIFIclient.setClientRSACert(x509DeviceCert, deviceKey);
-  }
-#endif
+//  WIFIclient.setClientRSACert(&deviceCert, &deviceKey);  // ESP8266 (BearSSL)
+// Alternative for EC crypto, for ESP8266 (BearSSL)
+  //  WIFIclient.setClientECCert(&deviceCert, &deviceKey, BR_KEYTYPE_KEYX | BR_KEYTYPE_SIGN, BR_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
 
 // Optional: Broker certificate validation
   //  WIFIclient.setFingerprint(BROKER_FINGERPRINT);
@@ -266,19 +234,18 @@ bool createTLSFiles()
 }
 */
 
-bool loadTLSFiles() 
-{
+bool loadTLSFiles() {
   File file;
   int i;
   char c;
 
-  if(!SPIFFS.begin()) {
+  if(!SPIFFS.begin(true)){
     Serial.println("An Error has occurred while mounting SPIFFS");
     return false;
   }
 
   // Load device certificate
-  file = SPIFFS.open("/device.crt", "r");
+  file = SPIFFS.open("/device.crt");
   if(!file) {
     Serial.println("Failed to open file for reading");
     return false;
@@ -286,19 +253,15 @@ bool loadTLSFiles()
   i = 0;
   while(file.available()){
     c = file.read();
-    strDeviceCert[i++] = c;
+    deviceCert[i++] = c;
   }
-  strDeviceCert[i] = 0;
+  deviceCert[i] = 0;
   file.close();
   Serial.println("Device certificate:");
-  Serial.println(strDeviceCert);
-
-#ifdef ESP8266
-  x509DeviceCert = new X509List(strDeviceCert);
-#endif
+  Serial.println(deviceCert);
 
   // Load device key  
-  file = SPIFFS.open("/device.key", "r");
+  file = SPIFFS.open("/device.key");
   if(!file) {
     Serial.println("Failed to open file for reading");
     return false;
@@ -306,19 +269,15 @@ bool loadTLSFiles()
   i = 0;
   while(file.available()){
     c = file.read();
-    strDeviceKey[i++] = c;
+    deviceKey[i++] = c;
   }
-  strDeviceKey[i] = 0;
+  deviceKey[i] = 0;
   file.close();
   Serial.println("Device key:");
-  Serial.println(strDeviceKey);
-
-#ifdef ESP8266
-  deviceKey = new PrivateKey(strDeviceKey);
-#endif
+  Serial.println(deviceKey);
 
   // Load CA certificate  
-  file = SPIFFS.open("/ca.crt", "r");
+  file = SPIFFS.open("/ca.crt");
   if(!file) {
     Serial.println("Failed to open file for reading");
     return false;
@@ -326,16 +285,12 @@ bool loadTLSFiles()
   i = 0;
   while(file.available()){
     c = file.read();
-    strCACert[i++] = c;
+    caCert[i++] = c;
   }
-  strCACert[i] = 0;
+  caCert[i] = 0;
   file.close();
   Serial.println("CA certificate:");
-  Serial.println(strCACert);
-
-#ifdef ESP8266
-  x509CACert = new X509List(strCACert);
-#endif
+  Serial.println(caCert);
 
   return true;
 }

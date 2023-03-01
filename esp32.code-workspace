@@ -11,7 +11,17 @@
 		},
 		{
 			"path": "esp32-mqtt-tls-test"
+		},
+		{
+			"path": "esp32-est-test"
+		},
+		{
+			"path": "espidf-blink"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"string": "cpp"
+		}
+	}
 }

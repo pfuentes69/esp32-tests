@@ -1,0 +1,14 @@
+WK-Guest
+Trust4All!
+aofwbgp3py5sf-ats.iot.eu-west-1.amazonaws.com
+aws-device-001
+aws-device-001/data
+aws-device-001/command
+# CONFIG FORMAT
+Above lines must contain, in this order:
+WiFi Name
+WiFi Password
+MQTT Broker name or IP address
+Device ID
+Publish Topic prefix
+Subscribe Topic prefix 
