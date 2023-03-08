@@ -112,6 +112,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 //
 void setMQTT()
 {
+
 // Load CA cert into trust store
 #ifdef ESP8266  
   WIFIclient.setTrustAnchors(x509CACert);
@@ -125,7 +126,7 @@ void setMQTT()
   //  WIFIclient.allowSelfSignedCerts();
 
 // Optional: Skip CA Validation
-  //  WIFIclient.setInsecure();
+//    WIFIclient.setInsecure();
 
 // Set Client certificate
 #ifdef ESP32

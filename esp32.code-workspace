@@ -17,6 +17,15 @@
 		},
 		{
 			"path": "espidf-blink"
+		},
+		{
+			"path": "esp32-st7789"
+		},
+		{
+			"path": "esp32-am2320-test"
+		},
+		{
+			"path": "espidf-aws-iot"
 		}
 	],
 	"settings": {
